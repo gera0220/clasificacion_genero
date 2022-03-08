@@ -10,6 +10,10 @@ os.chdir('../data/raw')
 # Guardar lista de folders
 folder_files = os.listdir()
 
+# Variables por conveniencia para el for
+num_ceps = 25
+fake_matrix = np.asmatrix(np.zeros((1,num_ceps + 1)))
+
 for folder in folder_files:
     os.chdir(folder)
     target = 1 if 'male' in folder else 0
@@ -18,15 +22,7 @@ for folder in folder_files:
         # Leer archivo del folder i
         fs, audio = read(file)
         audio = audio[0:fs]
-
-        # Vamos a obtener sus coeficientes.
-        # Parámetros que recibe:
-        #   - signal: la señal de audio.
-        #   - winlen: tamaño de la ventana en segundos.
-        #   - winstep: tamaño del avance (se utiliza para el prcentaje de muestras que habrá entre ventanas). En este caso se tiene un overlap de 50%.
-        #   - numcep: número de coeficientes de Mel.        coeffs.shape
-        #   - nfilt: número de filtros del banco.
-        coeffs = mfcc(signal = audio, samplerate = fs, winlen = 0.030, winstep = 0.015, numcep = 25, nfilt = 30, nfft = 1500)
+        coeffs = mfcc(signal = audio, samplerate = fs, winlen = 0.030, winstep = 0.015, numcep = num_ceps, nfilt = 30, nfft = 1500)
 
         # Matriz de 1's (male) o 0's (female)
         classes = np.matrix([target]*coeffs.shape[0])
@@ -34,5 +30,11 @@ for folder in folder_files:
         # Combinar 'coeffs' y 'classes'
         features = np.hstack([coeffs, classes.T])
 
-        np.savetxt('../../features/mfcc_' + file.split('.')[0] + '.txt', features, delimiter=",", fmt="%f")
+        # Combinar features actuales con anteriores y redefinir fake_matrix
+        full_features = np.vstack([fake_matrix, features])
+        fake_matrix = np.vstack([fake_matrix, features])
     os.chdir('../')
+
+# Guardar full_features excepto los ceros de la primera fila
+np.savetxt('../features/full_features.txt', full_features[1:, ], delimiter = ',', fmt = '%f')
+
