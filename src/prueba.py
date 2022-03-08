@@ -1,2 +1,4 @@
-x=78
-print(x)
+x = 0
+while x < 10:
+    x = x+1
+    print(x)
