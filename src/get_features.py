@@ -12,7 +12,7 @@ folder_files = os.listdir()
 
 # Variables por conveniencia para el for
 num_ceps = 25
-fake_matrix = np.asmatrix(np.zeros((1,num_ceps + 1)))
+full_features = np.matrix([1] * (num_ceps + 1))
 
 for folder in folder_files:
     os.chdir(folder)
@@ -31,8 +31,7 @@ for folder in folder_files:
         features = np.hstack([coeffs, classes.T])
 
         # Combinar features actuales con anteriores y redefinir fake_matrix
-        full_features = np.vstack([fake_matrix, features])
-        fake_matrix = np.vstack([fake_matrix, features])
+        full_features = np.vstack([full_features, features])
     os.chdir('../')
 
 # Guardar full_features excepto los ceros de la primera fila
