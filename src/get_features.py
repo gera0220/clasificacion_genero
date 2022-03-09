@@ -1,8 +1,8 @@
 from scipy.io.wavfile import read
 import numpy as np
 from python_speech_features.base import mfcc
-import matplotlib.pyplot as plt
 import os
+import glob
 
 # Cambio de directorio
 os.chdir('../data/raw')
@@ -17,7 +17,7 @@ full_features = np.matrix([1] * (num_ceps + 1))
 for folder in folder_files:
     os.chdir(folder)
     target = 1 if 'male' in folder else 0
-    audio_files = os.listdir()
+    audio_files = [audio for audio in glob.glob('*.wav')]
     for file in audio_files:
         # Leer archivo del folder i
         fs, audio = read(file)
@@ -34,6 +34,6 @@ for folder in folder_files:
         full_features = np.vstack([full_features, features])
     os.chdir('../')
 
-# Guardar full_features excepto los ceros de la primera fila
+# Guardar full_features excepto los 1's de la primera fila
 np.savetxt('../features/full_features.txt', full_features[1:, ], delimiter = ',', fmt = '%f')
 
